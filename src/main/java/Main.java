@@ -28,7 +28,7 @@ public class Main {
     public static void main(String[] args) {
     	BasicConfigurator.configure();
         port(getHerokuAssignedPort());
-        get("/hello", (req, res) -> "Hello Heroku World!!!!!!!!");
+        get("/hello", (req, res) -> "Hello Heroku World!!!!");
         
         get("/walletID", (request, response) ->{
 			System.out.println("Request: " + request.queryParams("uuid"));
