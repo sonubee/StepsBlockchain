@@ -31,9 +31,16 @@ public class Main {
         get("/hello", (req, res) -> "Hello Heroku World!!!!");
         
         get("/walletID", (request, response) ->{
-			System.out.println("Request: " + request.queryParams("uuid"));
+			System.out.println("UUID: " + request.queryParams("uuid"));
 			System.out.println("Creating Wallet");
 	       	return createWallet();
+	       });
+        
+        get("/checkWallet", (request, response) ->{
+			System.out.println("WalletId: " + request.queryParams("walletId"));
+			System.out.println("Checking Wallet");
+			boolean found = checkWallet(request.queryParams("walletId"));
+	       	return found;
 	       });
 		   
 		   
@@ -81,13 +88,29 @@ public class Main {
 		try{
 			credentials = WalletUtils.loadCredentials(
 			        "hellya",
-			        "./UTC--2017-09-28T18-57-53.555000000Z--79410ded4fd046b723df0b67ae093d14b9635968.json");
+			        "./UTC--2017-10-02T20-24-19.49000000Z--028e31738f2bec8567d3dd31343e61ba63a9143a.json"); //new one on server
+					//"./UTC--2017-09-28T18-57-53.555000000Z--79410ded4fd046b723df0b67ae093d14b9635968.json"); //one on local machine
 			
 			System.out.println("Successfully Loaded Wallet");
 			
 			createContract();
 		} catch (Exception e){
 			System.out.println("Error Loading Wallet: " + e.getMessage());
+		}
+	
+	}
+	
+	public static boolean checkWallet(String walletId){
+		try{
+			credentials = WalletUtils.loadCredentials(
+			        "hellya",
+			        "./" + walletId);
+			
+			System.out.println("Wallet Exists");
+			return true;
+		} catch (Exception e){
+			System.out.println("Error Loading Wallet: " + e.getMessage());
+			return false;
 		}
 	
 	}

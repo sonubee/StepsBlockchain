@@ -40,6 +40,9 @@ target/classes/Main.class
 # Log file
 *.log
 
+#UTC Files
+*.json
+
 # BlueJ files
 *.ctxt
 
