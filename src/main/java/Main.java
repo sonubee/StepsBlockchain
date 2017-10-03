@@ -25,7 +25,7 @@ public class Main {
 	public static final BigInteger GAS_PRICE = BigInteger.valueOf(20000000000L);
 	public static final BigInteger GAS_LIMIT = BigInteger.valueOf(4300000);
 	
-	private final String localUTC = "./UTC--2017-09-28T18-57-53.555000000Z--79410ded4fd046b723df0b67ae093d14b9635968.json";
+	private final static String localUTC = "./UTC--2017-09-28T18-57-53.555000000Z--79410ded4fd046b723df0b67ae093d14b9635968.json";
 
     public static void main(String[] args) {
     	BasicConfigurator.configure();
@@ -52,6 +52,13 @@ public class Main {
 	       	return loaded;
 	       });
         
+        get("/everyoneSteps", (request, response) ->{
+			System.out.println("Getting Steps for: " + request.queryParams("date"));
+			
+			int steps = loadEveryoneSteps(request.queryParams("date"));
+	       	return steps;
+	       });
+        
         get("/saveSteps", (request, response) ->{
 			System.out.println("Saving Steps for: " + request.queryParams("uuid"));
 			System.out.println("Steps: " + request.queryParams("steps"));
@@ -59,6 +66,8 @@ public class Main {
 			boolean saved = saveSteps(request.queryParams("uuid"),request.queryParams("steps"));
 	       	return saved;
 	       });
+        
+        
 		   
 		   
 		getClientVersion();
@@ -69,7 +78,7 @@ public class Main {
 		
 		//createWallet();
 		
-		//loadWallet();
+		loadWallet(localUTC);
     }
 
     static int getHerokuAssignedPort() {
@@ -90,9 +99,10 @@ public class Main {
     	boolean gotCred = loadWallet(walletId);
     	
     	if (gotCred){
-    		boolean gotContract = createContract(credentials.getAddress());
+    		boolean gotContract = createContract();
     		if (gotContract){
     			System.out.println("Got Contract");
+    			loadEveryoneSteps("92717");
     			return true;
     		}
     	}
@@ -102,27 +112,33 @@ public class Main {
     }
     
     
-    public static boolean createContract(String address){
+    public static boolean createContract(){
 		contract = _Users_Admin_Desktop_Steps_sol_Steps.load(credentials.getAddress(), web3, credentials, GAS_PRICE, GAS_LIMIT);
 		try{
-			System.out.println("Contract Valid: " + contract.isValid());	
+			System.out.println("Contract Valid: " + contract.isValid());
+			System.out.println("Address: " + contract.getContractAddress());
+			loadEveryoneSteps("92717");
 			return true;
 		} catch (Exception e){
 			System.out.println("Error Creating Contract: " + e.getMessage());
 			return false;
 		}
 		
-		//loadEveryoneSteps("92717");
+		
 	}
 	
-	public static void loadEveryoneSteps(String formattedDate){
+	public static int loadEveryoneSteps(String formattedDate){
 		Future<Uint256> everyoneSteps = contract.everyoneStepsDate(new Utf8String(formattedDate));
+		System.out.println("About to load everyone steps");
 	
 		try{
 			int steps = everyoneSteps.get().getValue().intValue();	
 			System.out.println("Steps: " + steps);
+			return steps;
 		} catch (Exception e){
 			System.out.println("Error Loading Everyone Steps: " + e.getMessage());
+			
+			return 0;
 		}
 		
 	}
@@ -131,13 +147,13 @@ public class Main {
 		try{
 			credentials = WalletUtils.loadCredentials(
 			        "hellya",
-			        "./" + jsonUTC); //one on local machine
+			        "./" + jsonUTC); 
 			
 			System.out.println("Successfully Loaded Wallet");
-			
+			createContract();
 			return true;
 			
-			//createContract();
+			
 		} catch (Exception e){
 			System.out.println("Error Loading Wallet: " + e.getMessage());
 			
