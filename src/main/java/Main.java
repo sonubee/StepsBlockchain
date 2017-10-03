@@ -26,6 +26,7 @@ public class Main {
 	public static final BigInteger GAS_LIMIT = BigInteger.valueOf(4300000);
 	
 	private final static String localUTC = "./UTC--2017-09-28T18-57-53.555000000Z--79410ded4fd046b723df0b67ae093d14b9635968.json";
+	private final static String contractAddress = "0x481791ccfdcaa1dc0547fdfcd92b5cd288c8634e";
 
     public static void main(String[] args) {
     	BasicConfigurator.configure();
@@ -78,7 +79,7 @@ public class Main {
 		
 		//createWallet();
 		
-		loadWallet(localUTC);
+		//loadWallet(localUTC);
     }
 
     static int getHerokuAssignedPort() {
@@ -113,11 +114,11 @@ public class Main {
     
     
     public static boolean createContract(){
-		contract = _Users_Admin_Desktop_Steps_sol_Steps.load(credentials.getAddress(), web3, credentials, GAS_PRICE, GAS_LIMIT);
+		contract = _Users_Admin_Desktop_Steps_sol_Steps.load(contractAddress, web3, credentials, GAS_PRICE, GAS_LIMIT);
 		try{
 			System.out.println("Contract Valid: " + contract.isValid());
 			System.out.println("Address: " + contract.getContractAddress());
-			loadEveryoneSteps("92717");
+			//loadEveryoneSteps("92717");
 			return true;
 		} catch (Exception e){
 			System.out.println("Error Creating Contract: " + e.getMessage());
@@ -150,7 +151,7 @@ public class Main {
 			        "./" + jsonUTC); 
 			
 			System.out.println("Successfully Loaded Wallet");
-			createContract();
+			//createContract();
 			return true;
 			
 			
