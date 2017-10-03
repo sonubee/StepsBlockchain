@@ -24,6 +24,8 @@ public class Main {
 	public static _Users_Admin_Desktop_Steps_sol_Steps contract;
 	public static final BigInteger GAS_PRICE = BigInteger.valueOf(20000000000L);
 	public static final BigInteger GAS_LIMIT = BigInteger.valueOf(4300000);
+	
+	private final String localUTC = "./UTC--2017-09-28T18-57-53.555000000Z--79410ded4fd046b723df0b67ae093d14b9635968.json";
 
     public static void main(String[] args) {
     	BasicConfigurator.configure();
@@ -42,15 +44,32 @@ public class Main {
 			boolean found = checkWallet(request.queryParams("walletId"));
 	       	return found;
 	       });
+        
+        get("/loadWallet", (request, response) ->{
+			System.out.println("Loading Wallet: " + request.queryParams("walletId"));
+			
+			boolean loaded = loadMyWallet(request.queryParams("walletId"));
+	       	return loaded;
+	       });
+        
+        get("/saveSteps", (request, response) ->{
+			System.out.println("Saving Steps for: " + request.queryParams("uuid"));
+			System.out.println("Steps: " + request.queryParams("steps"));
+			
+			boolean saved = saveSteps(request.queryParams("uuid"),request.queryParams("steps"));
+	       	return saved;
+	       });
 		   
 		   
 		getClientVersion();
 		
-		boolean unlocked = unlockMainAccount();
+		
+		
+		//boolean unlocked = unlockMainAccount();
 		
 		//createWallet();
 		
-		loadWallet();
+		//loadWallet();
     }
 
     static int getHerokuAssignedPort() {
@@ -61,15 +80,39 @@ public class Main {
         return 4567; //return default port if heroku-port isn't set (i.e. on localhost)
     }
     
-    public static void createContract(){
-		contract = _Users_Admin_Desktop_Steps_sol_Steps.load("0x481791ccfdcaa1dc0547fdfcd92b5cd288c8634e", web3, credentials, GAS_PRICE, GAS_LIMIT);
+    public static boolean saveSteps(String uuid, String steps){
+    	
+    	return true;
+    }
+    
+    public static boolean loadMyWallet(String walletId){
+    
+    	boolean gotCred = loadWallet(walletId);
+    	
+    	if (gotCred){
+    		boolean gotContract = createContract(credentials.getAddress());
+    		if (gotContract){
+    			System.out.println("Got Contract");
+    			return true;
+    		}
+    	}
+    	
+    	return false;
+    	
+    }
+    
+    
+    public static boolean createContract(String address){
+		contract = _Users_Admin_Desktop_Steps_sol_Steps.load(credentials.getAddress(), web3, credentials, GAS_PRICE, GAS_LIMIT);
 		try{
 			System.out.println("Contract Valid: " + contract.isValid());	
+			return true;
 		} catch (Exception e){
 			System.out.println("Error Creating Contract: " + e.getMessage());
+			return false;
 		}
 		
-		loadEveryoneSteps("92717");
+		//loadEveryoneSteps("92717");
 	}
 	
 	public static void loadEveryoneSteps(String formattedDate){
@@ -84,18 +127,21 @@ public class Main {
 		
 	}
 	
-	public static void loadWallet(){
+	public static boolean loadWallet(String jsonUTC){
 		try{
 			credentials = WalletUtils.loadCredentials(
 			        "hellya",
-			        "./UTC--2017-10-02T20-24-19.49000000Z--028e31738f2bec8567d3dd31343e61ba63a9143a.json"); //new one on server
-					//"./UTC--2017-09-28T18-57-53.555000000Z--79410ded4fd046b723df0b67ae093d14b9635968.json"); //one on local machine
+			        "./" + jsonUTC); //one on local machine
 			
 			System.out.println("Successfully Loaded Wallet");
 			
-			createContract();
+			return true;
+			
+			//createContract();
 		} catch (Exception e){
 			System.out.println("Error Loading Wallet: " + e.getMessage());
+			
+			return false;
 		}
 	
 	}
