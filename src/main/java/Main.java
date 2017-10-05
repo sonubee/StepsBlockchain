@@ -55,9 +55,11 @@ public class Main {
         
         get("/everyoneSteps", (request, response) ->{
 			System.out.println("Getting Steps for: " + request.queryParams("date"));
+			System.out.println("Wallet ID: " + request.queryParams("walletId"));
 			
-			int steps = loadEveryoneSteps(request.queryParams("date"));
-	       	return steps;
+			if (loadMyWallet(request.queryParams("walletId"))){
+				return loadEveryoneSteps(request.queryParams("date"));
+			} else {return -1;}
 	       });
         
         get("/saveSteps", (request, response) ->{
@@ -68,9 +70,6 @@ public class Main {
 	       	return saved;
 	       });
         
-        
-		   
-		   
 		getClientVersion();
 		
 		
@@ -131,7 +130,7 @@ public class Main {
 	public static int loadEveryoneSteps(String formattedDate){
 		Future<Uint256> everyoneSteps = contract.everyoneStepsDate(new Utf8String(formattedDate));
 		System.out.println("About to load everyone steps");
-	
+		System.out.println("Contract: " + credentials.getAddress());
 		try{
 			int steps = everyoneSteps.get().getValue().intValue();	
 			System.out.println("Steps: " + steps);
