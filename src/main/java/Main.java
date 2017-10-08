@@ -1,6 +1,8 @@
 import static spark.Spark.*;
 
+import jdk.nashorn.internal.parser.JSONParser;
 import org.json.JSONObject;
+import org.json.JSONPointer;
 import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.crypto.CipherException;
@@ -68,14 +70,16 @@ public class Main {
 		get("/everyoneSteps7Days", (request, response) ->{
 			System.out.println("Wallet ID: " + request.queryParams("walletId"));
 
+            JSONObject sevenDays = new JSONObject();
+
 			if (loadMyWallet(request.queryParams("walletId"))){
 				for (int i=0; i>=-6; i--) {
 					String formattedDate = DateFormatter.GetConCatDate(i);
 		            System.out.println(formattedDate);
-					//loadBlockchainData(i);
+					sevenDays.put(Integer.toString(i),loadEveryoneSteps(formattedDate));
 					}
 				
-				return "7  Days";
+				return sevenDays;
 			} else {return -1;}
 		});
         
