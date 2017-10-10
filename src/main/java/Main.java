@@ -1,6 +1,7 @@
 import static spark.Spark.*;
 
 import jdk.nashorn.internal.parser.JSONParser;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONPointer;
 import org.web3j.abi.datatypes.Utf8String;
@@ -70,16 +71,21 @@ public class Main {
 		get("/everyoneSteps7Days", (request, response) ->{
 			System.out.println("Wallet ID: " + request.queryParams("walletId"));
 
-            JSONObject sevenDays = new JSONObject();
+			JSONArray allDays = new JSONArray();
 
 			if (loadMyWallet(request.queryParams("walletId"))){
 				for (int i=0; i>=-6; i--) {
 					String formattedDate = DateFormatter.GetConCatDate(i);
 		            System.out.println(formattedDate);
-					sevenDays.put(Integer.toString(i),loadEveryoneSteps(formattedDate));
+
+		            JSONObject stepInfo = new JSONObject();
+					stepInfo.put("date", formattedDate);
+					stepInfo.put("steps", loadEveryoneSteps(formattedDate));
+
+					allDays.put(stepInfo);
 					}
 				
-				return sevenDays;
+				return allDays;
 			} else {return -1;}
 		});
         
