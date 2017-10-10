@@ -1,5 +1,9 @@
 import static spark.Spark.*;
 
+import jdk.nashorn.internal.parser.JSONParser;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONPointer;
 import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.crypto.CipherException;
@@ -17,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.concurrent.Future;
 
+
 public class Main {
 	
 	static Web3j web3;
@@ -29,7 +34,8 @@ public class Main {
 	private final static String contractAddress = "0x481791ccfdcaa1dc0547fdfcd92b5cd288c8634e";
 
     public static void main(String[] args) {
-    	BasicConfigurator.configure();
+
+        BasicConfigurator.configure();
         port(getHerokuAssignedPort());
         get("/hello", (req, res) -> "Hello Heroku World!!!!");
         
@@ -61,6 +67,27 @@ public class Main {
 				return loadEveryoneSteps(request.queryParams("date"));
 			} else {return -1;}
 	       });
+
+		get("/everyoneSteps7Days", (request, response) ->{
+			System.out.println("Wallet ID: " + request.queryParams("walletId"));
+
+			JSONArray allDays = new JSONArray();
+
+			if (loadMyWallet(request.queryParams("walletId"))){
+				for (int i=0; i>=-6; i--) {
+					String formattedDate = DateFormatter.GetConCatDate(i);
+		            System.out.println(formattedDate);
+
+		            JSONObject stepInfo = new JSONObject();
+					stepInfo.put("date", formattedDate);
+					stepInfo.put("steps", loadEveryoneSteps(formattedDate));
+
+					allDays.put(stepInfo);
+					}
+				
+				return allDays;
+			} else {return -1;}
+		});
         
         get("/saveSteps", (request, response) ->{
 			System.out.println("Saving Steps for: " + request.queryParams("uuid"));
@@ -69,6 +96,13 @@ public class Main {
 			boolean saved = saveSteps(request.queryParams("uuid"),request.queryParams("steps"));
 	       	return saved;
 	       });
+
+		get("/returnJSON", (request, response) ->{
+			JSONObject tempJSON = new JSONObject();
+			tempJSON.put("key1","value1");
+			tempJSON.put("key2","value2");
+			return tempJSON;
+				});
         
 		getClientVersion();
 		
@@ -230,3 +264,4 @@ public class Main {
 	}
 
 }
+
